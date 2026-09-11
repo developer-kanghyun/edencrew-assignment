@@ -41,4 +41,8 @@ abstract final class AppPalette {
   static const Color redAlpha12 = Color(0x1FFF5B5B);
   static const Color blueAlpha12 = Color(0x1F4D9BEE);
   static const Color violetAlpha12 = Color(0x1F8B7CF6);
+
+  // 바텀시트가 열렸을 때 뒤 화면을 가리는 검정 50% (0.5 * 255 = 128 = 0x80).
+  // Figma `01 · 관심_sort`의 딤 레이어 값이며 Primitives에는 없어 추가했다.
+  static const Color blackAlpha50 = Color(0x80000000);
 }
