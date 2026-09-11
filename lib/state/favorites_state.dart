@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
+import '../data/naver_client.dart';
+import '../data/stock_repository.dart';
 import '../models/favorite_stock.dart';
 import '../models/quote.dart';
 
@@ -20,31 +24,44 @@ enum SortOrder {
 /// 이 객체 하나에게 등록 · 해제를 시킨다. 화면이 자기 별표 상태를 따로 들고 있지
 /// 않으므로 세 화면이 어긋날 수 없다.
 class FavoritesState extends ChangeNotifier {
+  FavoritesState(this._repository);
+
+  final StockRepository _repository;
   final List<FavoriteStock> _stocks = <FavoriteStock>[];
+
   /// 시안(`01 · 관심`)의 헤더 칩 기본값이 '가나다순'이다.
   SortOrder _sortOrder = SortOrder.name;
 
+  bool _isRefreshing = false;
+  String? _errorMessage;
+
   SortOrder get sortOrder => _sortOrder;
+  bool get isRefreshing => _isRefreshing;
+  String? get errorMessage => _errorMessage;
+  bool get isEmpty => _stocks.isEmpty;
 
   /// 현재 정렬 기준을 적용한 관심종목 목록.
   List<FavoriteStock> get stocks {
     final List<FavoriteStock> sorted = List<FavoriteStock>.of(_stocks);
     switch (_sortOrder) {
       case SortOrder.name:
-        sorted.sort((FavoriteStock a, FavoriteStock b) =>
-            a.name.compareTo(b.name));
+        sorted.sort(
+          (FavoriteStock a, FavoriteStock b) => a.name.compareTo(b.name),
+        );
       case SortOrder.price:
-        sorted.sort((FavoriteStock a, FavoriteStock b) =>
-            _compareDescendingNullsLast(
-              a.quote?.currentPrice,
-              b.quote?.currentPrice,
-            ));
+        sorted.sort(
+          (FavoriteStock a, FavoriteStock b) => _compareDescendingNullsLast(
+            a.quote?.currentPrice,
+            b.quote?.currentPrice,
+          ),
+        );
       case SortOrder.changeRate:
-        sorted.sort((FavoriteStock a, FavoriteStock b) =>
-            _compareDescendingNullsLast(
-              a.quote?.changeRate,
-              b.quote?.changeRate,
-            ));
+        sorted.sort(
+          (FavoriteStock a, FavoriteStock b) => _compareDescendingNullsLast(
+            a.quote?.changeRate,
+            b.quote?.changeRate,
+          ),
+        );
     }
     return sorted;
   }
@@ -63,18 +80,53 @@ class FavoritesState extends ChangeNotifier {
   }) {
     if (isFavorite(symbol)) {
       _stocks.removeWhere((FavoriteStock stock) => stock.symbol == symbol);
-    } else {
-      _stocks.add(
-        FavoriteStock(symbol: symbol, name: name, marketName: marketName),
-      );
+      notifyListeners();
+      return;
     }
+
+    _stocks.add(
+      FavoriteStock(symbol: symbol, name: name, marketName: marketName),
+    );
     notifyListeners();
+
+    // 시세를 기다리지 않고 먼저 그린다. 도착할 때까지 그 행은 스켈레톤으로 보인다.
+    unawaited(_loadQuotes(<String>[symbol]));
   }
 
   void setSortOrder(SortOrder order) {
     if (_sortOrder == order) return;
     _sortOrder = order;
     notifyListeners();
+  }
+
+  /// 헤더의 새로고침 버튼과 첫 진입에서 부른다.
+  /// 관심종목이 몇 개든 요청은 한 번이다.
+  Future<void> refresh() async {
+    if (_stocks.isEmpty) {
+      _errorMessage = null;
+      notifyListeners();
+      return;
+    }
+
+    _isRefreshing = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    await _loadQuotes(
+      _stocks.map((FavoriteStock stock) => stock.symbol).toList(),
+    );
+
+    _isRefreshing = false;
+    notifyListeners();
+  }
+
+  Future<void> _loadQuotes(List<String> symbols) async {
+    try {
+      applyQuotes(await _repository.fetchQuotes(symbols));
+    } on NaverApiException catch (error) {
+      _errorMessage = error.message;
+      notifyListeners();
+    }
   }
 
   /// 받아온 시세를 목록에 붙인다. 응답에 없는 종목은 기존 값을 그대로 둔다.

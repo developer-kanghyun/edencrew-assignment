@@ -1,19 +1,24 @@
+import 'package:edencrew_assignment_starter/data/stock_repository.dart';
 import 'package:edencrew_assignment_starter/state/app_scope.dart';
 import 'package:edencrew_assignment_starter/state/favorites_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers.dart';
+
 void main() {
   testWidgets('Navigator.push로 열린 화면도 같은 FavoritesState를 찾는다', (
     WidgetTester tester,
   ) async {
-    final FavoritesState favorites = FavoritesState();
+    final StockRepository repository = fakeRepository();
+    final FavoritesState favorites = FavoritesState(repository);
     late FavoritesState fromHome;
     late FavoritesState fromPushedRoute;
 
     await tester.pumpWidget(
       AppScope(
         favorites: favorites,
+        repository: repository,
         child: MaterialApp(
           home: Builder(
             builder: (BuildContext context) {

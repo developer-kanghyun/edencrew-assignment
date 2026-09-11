@@ -3,6 +3,8 @@ import 'package:edencrew_assignment_starter/models/quote.dart';
 import 'package:edencrew_assignment_starter/state/favorites_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers.dart';
+
 Quote quoteOf(
   String symbol, {
   required int currentPrice,
@@ -22,7 +24,7 @@ void main() {
   late FavoritesState state;
 
   setUp(() {
-    state = FavoritesState();
+    state = FavoritesState(fakeRepository());
   });
 
   void add(String symbol, String name) {

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../data/stock_repository.dart';
 import 'favorites_state.dart';
 
 /// 앱 전역에서 공유하는 객체를 위젯 트리 아래로 전달한다.
@@ -8,9 +9,15 @@ import 'favorites_state.dart';
 /// 만들고 `Navigator.push`로 열린 화면은 그 아래에 생기므로, 바깥에 두어야 push된
 /// 화면에서도 찾을 수 있다. `home:` 안에 두면 상세 화면에서 찾지 못한다.
 class AppScope extends InheritedWidget {
-  const AppScope({required this.favorites, required super.child, super.key});
+  const AppScope({
+    required this.favorites,
+    required this.repository,
+    required super.child,
+    super.key,
+  });
 
   final FavoritesState favorites;
+  final StockRepository repository;
 
   static AppScope of(BuildContext context) {
     final AppScope? scope =
