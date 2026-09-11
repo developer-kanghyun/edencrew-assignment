@@ -97,4 +97,69 @@ void main() {
   test('formatSymbolAndMarket은 가운뎃점으로 잇는다', () {
     expect(formatSymbolAndMarket('005930', '코스피'), '005930 · 코스피');
   });
+
+  group('formatChangeWithArrow', () {
+    Quote quoteOf({required int currentPrice, required int previousClose}) =>
+        Quote(
+          symbol: '005930',
+          currentPrice: currentPrice,
+          previousClose: previousClose,
+          open: 0,
+          high: 0,
+          low: 0,
+          accumulatedVolume: 0,
+          listedShares: 0,
+        );
+
+    test('방향은 화살표가 맡고 금액에는 부호가 없다', () {
+      expect(
+        formatChangeWithArrow(
+          quoteOf(currentPrice: 179700, previousClose: 180100),
+        ),
+        '▼ 400 (-0.22%)',
+      );
+      expect(
+        formatChangeWithArrow(
+          quoteOf(currentPrice: 412500, previousClose: 403000),
+        ),
+        '▲ 9,500 (+2.36%)',
+      );
+    });
+
+    test('보합은 화살표가 없다', () {
+      expect(
+        formatChangeWithArrow(
+          quoteOf(currentPrice: 195400, previousClose: 195400),
+        ),
+        '0 (0.00%)',
+      );
+    });
+  });
+
+  group('formatVolume', () {
+    test('천 단위로 줄이고 천을 붙인다', () {
+      expect(formatVolume(29113466), '29,113천');
+      expect(formatVolume(1000), '1천');
+    });
+
+    test('천 미만은 그대로 둔다', () {
+      expect(formatVolume(999), '999');
+      expect(formatVolume(0), '0');
+    });
+  });
+
+  group('formatMarketCap', () {
+    test('조 단위로 줄인다', () {
+      expect(formatMarketCap(1050600000000000), '1,050조');
+    });
+
+    test('조 미만이면 억으로 내려간다', () {
+      expect(formatMarketCap(500000000000), '5,000억');
+      expect(formatMarketCap(100000000), '1억');
+    });
+
+    test('억 미만은 그대로 둔다', () {
+      expect(formatMarketCap(99999999), '99,999,999');
+    });
+  });
 }
