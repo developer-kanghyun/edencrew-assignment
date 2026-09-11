@@ -12,6 +12,7 @@ import '../widgets/empty_state.dart';
 import '../widgets/favorite_toast.dart';
 import '../widgets/search_field.dart';
 import '../widgets/search_result_row.dart';
+import 'detail_screen.dart';
 
 /// `02 · 검색` 화면. 결과 목록, 초기 빈 상태, 결과 없음, 토스트가 여기에 있다.
 class SearchScreen extends StatefulWidget {
@@ -203,7 +204,15 @@ class _Body extends StatelessWidget {
           // 별표는 화면이 들고 있지 않고 매번 FavoritesState에 묻는다.
           isFavorite: favorites.isFavorite(result.symbol),
           onToggleFavorite: () => onToggleFavorite(result),
-          onTap: () {},
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => DetailScreen(
+                symbol: result.symbol,
+                name: result.name,
+                marketName: result.marketName,
+              ),
+            ),
+          ),
         );
       },
     );

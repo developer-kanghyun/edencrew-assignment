@@ -7,6 +7,7 @@ import '../theme/app_text_styles.dart';
 import '../theme/theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/watchlist_row.dart';
+import 'detail_screen.dart';
 
 /// `01 · 관심` 화면. 목록, 빈 상태, 정렬 바텀시트가 모두 여기에 있다.
 class WatchlistScreen extends StatefulWidget {
@@ -134,8 +135,21 @@ class _StockList extends StatelessWidget {
       onRefresh: favorites.refresh,
       child: ListView.builder(
         itemCount: stocks.length,
-        itemBuilder: (BuildContext context, int index) =>
-            WatchlistRow(stock: stocks[index]),
+        itemBuilder: (BuildContext context, int index) {
+          final FavoriteStock stock = stocks[index];
+          return WatchlistRow(
+            stock: stock,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => DetailScreen(
+                  symbol: stock.symbol,
+                  name: stock.name,
+                  marketName: stock.marketName,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
