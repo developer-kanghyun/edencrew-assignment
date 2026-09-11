@@ -5,6 +5,7 @@ import '../state/app_scope.dart';
 import '../state/favorites_state.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme.dart';
+import '../widgets/empty_state.dart';
 import '../widgets/watchlist_row.dart';
 
 /// `01 · 관심` 화면. 목록, 빈 상태, 정렬 바텀시트가 모두 여기에 있다.
@@ -43,7 +44,11 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
               _ErrorBanner(message: favorites.errorMessage!),
             Expanded(
               child: favorites.isEmpty
-                  ? const _EmptyState()
+                  ? const EmptyState(
+                      icon: Icons.star_border_rounded,
+                      title: '관심 종목이 없습니다',
+                      description: '검색 탭에서 종목을 찾아\n별 아이콘을 눌러 추가해 주세요.',
+                    )
                   : _StockList(favorites: favorites),
             ),
           ],
@@ -131,50 +136,6 @@ class _StockList extends StatelessWidget {
         itemCount: stocks.length,
         itemBuilder: (BuildContext context, int index) =>
             WatchlistRow(stock: stocks[index]),
-      ),
-    );
-  }
-}
-
-/// `01 · 관심_empty`. 헤더와 탭바는 그대로 두고 목록 자리만 바뀐다.
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  static const double _starSize = 40;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppColors colors = context.colors;
-    final AppDimens dimens = context.dimens;
-
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: dimens.space4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(
-              Icons.star_border_rounded,
-              size: _starSize,
-              color: colors.textTertiary,
-            ),
-            SizedBox(height: dimens.space3),
-            Text(
-              '관심 종목이 없습니다',
-              style: AppTextStyles.screenTitle.copyWith(
-                color: colors.textSecondary,
-              ),
-            ),
-            SizedBox(height: dimens.space3),
-            Text(
-              '검색 탭에서 종목을 찾아\n별 아이콘을 눌러 추가해 주세요.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.rowSecondary.copyWith(
-                color: colors.textTertiary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

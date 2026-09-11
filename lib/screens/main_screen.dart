@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 import '../widgets/app_bottom_nav.dart';
+import 'search_screen.dart';
 import 'watchlist_screen.dart';
 
 /// 관심 / 검색 두 탭을 감싸는 껍데기 화면.
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
         bottom: false,
         child: IndexedStack(
           index: _currentIndex,
-          children: const <Widget>[WatchlistScreen(), _SearchPlaceholder()],
+          children: const <Widget>[WatchlistScreen(), SearchScreen()],
         ),
       ),
       bottomNavigationBar: AppBottomNav(
@@ -35,12 +36,4 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-}
-
-/// 검색 화면을 붙이기 전까지 탭 전환만 확인하기 위한 자리.
-class _SearchPlaceholder extends StatelessWidget {
-  const _SearchPlaceholder();
-
-  @override
-  Widget build(BuildContext context) => const SizedBox.expand();
 }

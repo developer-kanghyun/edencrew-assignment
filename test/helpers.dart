@@ -1,7 +1,34 @@
+import 'dart:convert';
+
 import 'package:edencrew_assignment_starter/data/naver_client.dart';
 import 'package:edencrew_assignment_starter/data/stock_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+
+/// 자동완성 응답을 흉내낸다. `{종목코드: 종목명}` 만 주면 나머지는 채워준다.
+http.Response autocompleteResponse(Map<String, String> stocks) {
+  return jsonResponse(<String, dynamic>{
+    'query': 'x',
+    'items': <Map<String, dynamic>>[
+      for (final MapEntry<String, String> e in stocks.entries)
+        <String, dynamic>{
+          'code': e.key,
+          'name': e.value,
+          'typeName': '코스피',
+          'nationCode': 'KOR',
+          'category': 'stock',
+        },
+    ],
+  });
+}
+
+/// content-type을 붙여서 응답을 만든다. 안 붙이면 http 패키지가 본문을
+/// latin1로 인코딩해서 한글을 담지 못한다.
+http.Response jsonResponse(Object body) => http.Response(
+  jsonEncode(body),
+  200,
+  headers: <String, String>{'content-type': 'application/json;charset=utf-8'},
+);
 
 /// 네트워크를 타지 않는 저장소. 시세 요청에는 빈 응답을 준다.
 ///
